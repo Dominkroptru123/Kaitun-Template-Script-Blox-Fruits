@@ -1309,6 +1309,17 @@ local function KaitunWorld2(Quest,QuestTitle,Level)
 	end
 end
 local Melees = {
+	["Combat"] = {
+        NPC = "",
+        Price = {
+            Beli = 0,
+            Fragments = 0
+        },
+        BuyID = "BuyBlackLeg",
+        RequiredMastery = 0,
+        IsCompleted = true,
+		World = 1
+    },
     ["Black Leg"] = {
         NPC = "Dark Step Teacher",
         Price = {
@@ -1543,7 +1554,7 @@ task.spawn(function()
 				if v.IsCompleted then
 					continue
 				else
-					if GetWorld >= v.World then
+					if GetWorld() >= v.World then
 						if CommF_:InvokeServer(v.BuyID,true) == 1 then
 							local tmelee
 							if workspace.NPCs:FindFirstChild(v.NPC) then
