@@ -122,7 +122,7 @@ local function Attack(v)
 		end
 		if LocalPlayer.PlayerGui.Main.Skills:FindFirstChild("Black Leg") or LocalPlayer.PlayerGui.Main.Skills:FindFirstChild("Death Step") then
 			if LocalPlayer.PlayerGui.Main.Skills:FindFirstChild("Black Leg") then
-				if LocalPlayer.PlayerGui.Main.Skills["Black Leg"]:FindFirstChild("V") then
+				if LocalPlayer.PlayerGui.Main.Skills["Black Leg"]:FindFirstChild("V") and IsOwn("Black Leg").Level.Value >= 150 then
 					if LocalPlayer.PlayerGui.Main.Skills["Black Leg"].V.Cooldown.AbsoluteSize.X <= 0.1 then
 						game:GetService("VirtualInputManager"):SendKeyEvent(true, "V", false, game)
 						game:GetService("VirtualInputManager"):SendKeyEvent(false, "V", false, game)
@@ -130,7 +130,7 @@ local function Attack(v)
 					end
 				end
 			elseif LocalPlayer.PlayerGui.Main.Skills:FindFirstChild("Death Step") then
-				if LocalPlayer.PlayerGui.Main.Skills["Death Step"]:FindFirstChild("V") then
+				if LocalPlayer.PlayerGui.Main.Skills["Death Step"]:FindFirstChild("V") and IsOwn("Black Leg").Level.Value >= 400 then
 					if LocalPlayer.PlayerGui.Main.Skills["Death Step"].V.Cooldown.AbsoluteSize.X <= 0.1 then
 						game:GetService("VirtualInputManager"):SendKeyEvent(true, "V", false, game)
 						game:GetService("VirtualInputManager"):SendKeyEvent(false, "V", false, game)
@@ -1309,17 +1309,6 @@ local function KaitunWorld2(Quest,QuestTitle,Level)
 	end
 end
 local Melees = {
-	["Combat"] = {
-        NPC = "",
-        Price = {
-            Beli = 0,
-            Fragments = 0
-        },
-        BuyID = "BuyBlackLeg",
-        RequiredMastery = 0,
-        IsCompleted = true,
-		World = 1
-    },
     ["Black Leg"] = {
         NPC = "Dark Step Teacher",
         Price = {
@@ -1549,12 +1538,18 @@ task.spawn(function()
 		-- 	Melees["Sharkman Karate"].IsCompleted = true
 		-- 	Melees["Dragon Breath"].IsCompleted = true
 		-- end
-		if tonumber(IsOwn(CurMelee).Level.Value) >= Melees[CurMelee].RequiredMastery then
+		if CurMelee == "Combat" or tonumber(IsOwn(CurMelee).Level.Value) >= Melees[CurMelee].RequiredMastery then
 			for i, v in pairs(Melees) do
 				if v.IsCompleted then
 					continue
 				else
 					if GetWorld() >= v.World then
+						local isfrag = true
+						if GetWorld() >= 2 then
+							if LocalPlayer.Data.Fragments.Value < v.Price.Fragments then
+								isfrag = false
+							end
+						end
 						if CommF_:InvokeServer(v.BuyID,true) == 1 then
 							local tmelee
 							if workspace.NPCs:FindFirstChild(v.NPC) then
@@ -1563,10 +1558,11 @@ task.spawn(function()
 								tmelee = Tween(ReplicatedStorage.NPCs:FindFirstChild(v.NPC).HumanoidRootPart.CFrame,350)
 							end
 							if tmelee then
+								title.Text = "Get " .. i
 								tmelee.Completed:Wait()
 							end
 							CommF_:InvokeServer(v.BuyID)
-						elseif LocalPlayer.Data.Beli.Value >= v.Price.Beli and ((World2 or World3) and LocalPlayer.Data.Fragments.Value >= v.Price.Fragments) then
+						elseif LocalPlayer.Data.Beli.Value >= v.Price.Beli and isfrag then
 							local tmelee
 							if workspace.NPCs:FindFirstChild(v.NPC) then
 								tmelee = Tween(workspace.NPCs:FindFirstChild(v.NPC).HumanoidRootPart.CFrame,350)
@@ -1574,6 +1570,7 @@ task.spawn(function()
 								tmelee = Tween(ReplicatedStorage.NPCs:FindFirstChild(v.NPC).HumanoidRootPart.CFrame,350)
 							end
 							if tmelee then
+								title.Text = "Get " .. i
 								tmelee.Completed:Wait()
 							end
 							CommF_:InvokeServer(v.BuyID)
